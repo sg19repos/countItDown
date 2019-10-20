@@ -9,7 +9,7 @@ import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
 import Grid from "@material-ui/core/Grid";
 import DeleteIcon from "@material-ui/icons/Delete";
-import FolderIcon from "@material-ui/icons/Folder";
+import AccessAlarmIcon from "@material-ui/icons/AccessAlarm";
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -37,14 +37,15 @@ export default function InteractiveList(
     id,
     getElementToDelete
 ) {
-    console.log("id", id);
-
     const classes = useStyles();
     const [dense] = React.useState(false);
     const [secondary] = React.useState(false);
 
     const removeListElement = () => {
-        getElementToDelete(id);
+        let result = window.confirm("Sure you want to delete?");
+        if (result) {
+            getElementToDelete(id);
+        }
     };
 
     return (
@@ -57,7 +58,7 @@ export default function InteractiveList(
                                 <ListItem>
                                     <ListItemAvatar>
                                         <Avatar>
-                                            <FolderIcon />
+                                            <AccessAlarmIcon />
                                         </Avatar>
                                     </ListItemAvatar>
                                     <ListItemText

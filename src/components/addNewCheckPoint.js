@@ -1,90 +1,100 @@
 import React, { useState, Fragment } from "react";
-import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
-import { format } from "date-fns";
-import InteractiveList from "./listWithDelete";
+import CheckPoint from "./checkPoints";
+
+import ButtonSizes from "./snoozeButton";
+import InputFieldStyles from "../styles/InputFieldStyles";
+import SnoozeListStyles from "../styles/snoozeListStyles";
+
+// import SnoozeInputFields from "./snoozeInputField";
+import MaterialUIPickers from "./dateTimePicker";
 
 const snoozeArray = [];
 function AddNewCheckPoint() {
     const [newTime, setNewTime] = useState("");
+    const [snoozeElements, setSnoozeElements] = useState(
+        localStorage.getItem("SnoozeArray")
+            ? JSON.parse(localStorage.getItem("SnoozeArray")).snoozeArray
+            : []
+    );
 
     const handleOnSnoozeClick = () => {
-        if (localStorage.getItem("SnoozeArray")) {
+        if (
+            localStorage.getItem("SnoozeArray") &&
+            JSON.parse(localStorage.getItem("SnoozeArray")).snoozeArray.length >
+                0
+        ) {
             let snoozeArray = JSON.parse(localStorage.getItem("SnoozeArray"))
                 .snoozeArray;
-            snoozeArray.push(newTime);
-            let idsArray = JSON.parse(localStorage.getItem("SnoozeArray"))
-                .idsArray;
-            let lastId = parseInt(idsArray[idsArray.length - 1]) + 1;
-            idsArray.push(lastId);
+            if (newTime == "") {
+                snoozeArray.push(
+                    new Date().setMinutes(new Date().getMinutes() + 1)
+                );
+            } else {
+                snoozeArray.push(newTime);
+            }
             localStorage.setItem(
                 "SnoozeArray",
-                JSON.stringify({ snoozeArray: snoozeArray, idsArray: idsArray })
+                JSON.stringify({ snoozeArray: snoozeArray })
             );
         } else {
             let snoozeArray = [];
-            let idsArray = [0];
-            snoozeArray.push(newTime);
+            snoozeArray.push(
+                new Date().setMinutes(new Date().getMinutes() + 1)
+            );
             localStorage.setItem(
                 "SnoozeArray",
-                JSON.stringify({ snoozeArray: snoozeArray, idsArray: idsArray })
+                JSON.stringify({ snoozeArray: snoozeArray })
             );
         }
         setNewTime(snoozeArray);
+        setSnoozeElements(
+            JSON.parse(localStorage.getItem("SnoozeArray")).snoozeArray
+        );
+        window.location.reload();
     };
 
     const handleOnDateChange = e => {
-        setNewTime(e._d);
+        setNewTime(e);
     };
 
     const AddNewBtn = () => {
         return (
-            <button name="addNewCheckPoint" onClick={handleOnSnoozeClick}>
-                Snooze here
-            </button>
+            <ButtonSizes
+                triggerClick={() => {
+                    handleOnSnoozeClick();
+                }}
+            />
         );
     };
 
     const getElementToDelete = id => {
         let snoozeArray = JSON.parse(localStorage.getItem("SnoozeArray"))
             .snoozeArray;
-        let idsArray = JSON.parse(localStorage.getItem("SnoozeArray")).idsArray;
+
         snoozeArray.splice(id, 1);
-        idsArray.splice(id, 1);
 
         localStorage.setItem(
             "SnoozeArray",
             JSON.stringify({
-                snoozeArray: snoozeArray,
-                idsArray: idsArray
+                snoozeArray: snoozeArray
             })
+        );
+        setSnoozeElements(
+            JSON.parse(localStorage.getItem("SnoozeArray")).snoozeArray
         );
     };
 
     const SnoozeList = () => {
-        const finalArray = localStorage.getItem("SnoozeArray");
-        return finalArray
-            ? JSON.parse(finalArray).snoozeArray.map(finalArrayElements => {
+        return snoozeElements
+            ? snoozeElements.map(finalArrayElement => {
                   return (
-                      <ul
-                          key={JSON.parse(finalArray).snoozeArray.indexOf(
-                              finalArrayElements
-                          )}
-                          id={JSON.parse(finalArray).snoozeArray.indexOf(
-                              finalArrayElements
-                          )}
-                      >
-                          {InteractiveList(
-                              format(
-                                  new Date(finalArrayElements),
-                                  "dd-MMMM-yyyy hh:mm:ss p"
-                              ),
-                              JSON.parse(finalArray).snoozeArray.indexOf(
-                                  finalArrayElements
-                              ),
-                              getElementToDelete
-                          )}
-                      </ul>
+                      <CheckPoint
+                          key={snoozeElements.indexOf(finalArrayElement)}
+                          snoozeElements={snoozeElements}
+                          finalArrayElement={finalArrayElement}
+                          getElementToDelete={getElementToDelete}
+                      />
                   );
               })
             : null;
@@ -92,9 +102,13 @@ function AddNewCheckPoint() {
 
     return (
         <Fragment>
-            <Datetime onChange={handleOnDateChange} />
+            <InputFieldStyles>
+                <MaterialUIPickers handleOnDateChange={handleOnDateChange} />
+            </InputFieldStyles>
             <AddNewBtn />
-            <SnoozeList />
+            <SnoozeListStyles>
+                <SnoozeList />
+            </SnoozeListStyles>
         </Fragment>
     );
 }

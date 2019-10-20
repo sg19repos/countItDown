@@ -2,8 +2,9 @@ import React, { Fragment, useRef } from "react";
 import FirstTimer2 from "./firstTimer2";
 import AddNewCheckPoint from "./addNewCheckPoint";
 import sound from "../sounds/analog-watch-alarm_daniel-simion.mp3";
-
-import InteractiveList from "./listWithDelete";
+import TimerStyle from "../styles/timerStyle";
+import HomeStyles from "../styles/HomeStyles";
+import MainHeading from "./mainHeading";
 
 function Home() {
     const snoozeList = localStorage.getItem("SnoozeArray");
@@ -12,8 +13,7 @@ function Home() {
         if (snoozeList != null) {
             JSON.parse(snoozeList).snoozeArray.map(snoozeElement => {
                 if (
-                    new Date(snoozeElement).toString() ==
-                    new Date(currentTime).toString()
+                    new Date(snoozeElement).toString() == new Date().toString()
                 ) {
                     audioElement.current.play();
                 }
@@ -23,9 +23,14 @@ function Home() {
 
     return (
         <Fragment>
-            <audio hidden src={sound} controls ref={audioElement}></audio>
-            <FirstTimer2 getUpatesfromChild={getUpatesfromChild} />
-            <AddNewCheckPoint />
+            <HomeStyles>
+                <MainHeading />
+                <audio hidden src={sound} controls ref={audioElement}></audio>
+                <TimerStyle>
+                    <FirstTimer2 getUpatesfromChild={getUpatesfromChild} />
+                </TimerStyle>
+                <AddNewCheckPoint />
+            </HomeStyles>
         </Fragment>
     );
 }
